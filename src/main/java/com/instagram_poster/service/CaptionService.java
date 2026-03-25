@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.File;
 import java.util.List;
 
 @Service
@@ -26,9 +24,9 @@ public class CaptionService {
         this.restTemplate = restTemplate;
     }
 
-    public String generateCaption(File image) {
+    public String generateCaption(String imageName) {
         try {
-            String fileName = image.getName()
+            String fileName = imageName
                     .replace(".jpg", "")
                     .replace(".png", "");
 
@@ -85,14 +83,14 @@ public class CaptionService {
                         .getMessage()
                         .getContent();
 
-                log.info("Generated caption for {}: {}", image.getName(), caption);
+                log.info("Generated caption for {}: {}", fileName, caption);
                 return caption;
             }
 
             throw new RuntimeException("Empty response from Groq API");
 
         } catch (Exception e) {
-            log.error("Error generating caption for image: {}", image.getName(), e);
+            log.error("Error generating caption for image: {}", imageName, e);
             throw new RuntimeException("Failed to generate caption: " + e.getMessage());
         }
     }

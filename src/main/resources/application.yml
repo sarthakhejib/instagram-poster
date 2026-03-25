@@ -1,25 +1,28 @@
 spring:
-  application-name: instagram-poster
+  application:
+    name: instagram-poster
 server:
   port: 9000
 
 groq:
   api:
     base-url: https://api.groq.com/openai/v1
-    key: {API_Key}
-    model: {Model}
-app:
-  image:
-    input-dir: ./images/input
-    processed-dir: ./images/processed
-    supported-formats: jpg,jpeg,png
+    key: ${GROQ_API_KEY}
+    model:  ${GROQ_MODEL:llama-3.1-8b-instant}
 
 cloudinary:
-  cloud-name: {Cloud_Name }
-  api-key: {App_Key}
-  api-secret: {API_Secret}
-
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
 
 instagram:
-  access-token: {Access_Token}
-  business-id: {Business_ID}
+  access-token: ${INSTAGRAM_ACCESS_TOKEN}
+  business-id: ${INSTAGRAM_BUSINESS_ID}
+
+management:
+  endpoints:
+    health:
+      show-details: always
+    web:
+      exposure:
+        include: health
