@@ -4,6 +4,8 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
 import com.instagram_poster.dto.ImageData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ import java.util.Random;
 
 @Service
 public class CloudinaryService {
+
+    private static final Logger log = LoggerFactory.getLogger(CloudinaryService.class);
 
     @Autowired
     private Cloudinary cloudinary;
@@ -25,12 +29,14 @@ public class CloudinaryService {
             ApiResponse response = cloudinary.api().resources(
                     ObjectUtils.asMap(
                             "type", "upload",
-                            "prefix", "kimau_upload",   // your folder
+                            "prefix", "kimau_upload/",   // your folder
                             "max_results", 50
                     )
             );
 
             List<Map> resources = (List<Map>) response.get("resources");
+
+            log.info("Resources: {}", response.get("resources"));
 
             if (resources == null || resources.isEmpty()) {
                 throw new RuntimeException("No images found in Cloudinary");
@@ -68,10 +74,10 @@ public class CloudinaryService {
                     ObjectUtils.emptyMap()
             );
 
-            System.out.println("Moved to posted: " + newPublicId);
+          log.info("Moved to posted: ",  newPublicId);
 
         } catch (Exception e) {
-            System.err.println("Failed to move image: " + publicId);
+           log.error("Failed to move image: ", publicId);
             e.printStackTrace();
         }
     }
