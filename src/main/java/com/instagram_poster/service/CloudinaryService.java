@@ -42,7 +42,7 @@ public class CloudinaryService {
             }
 
             List<Map> filtered = resources.stream()
-                    .filter(img -> img.get("public_id").toString().startsWith("kimau_upload/"))
+                    .filter(img -> "kimau_upload".equals(img.get("asset_folder")))
                     .toList();
 
             if (filtered.isEmpty()) {
@@ -50,7 +50,7 @@ public class CloudinaryService {
             }
 
             // Pick random image
-            int index = new Random().nextInt(resources.size());
+            int index = new Random().nextInt(filtered.size());
             Map image = filtered.get(index);
 
             String imageUrl = image.get("secure_url").toString();

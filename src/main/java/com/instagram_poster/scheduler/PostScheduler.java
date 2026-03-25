@@ -25,7 +25,7 @@ public class PostScheduler {
         this.cloudinaryService = cloudinaryService;
     }
 
-    @Scheduled(cron = "0 50 0 * * *", zone = "Asia/Kolkata")
+    @Scheduled(cron = "0 10 1 * * ?", zone = "Asia/Kolkata")
     public void postImage() {
         ImageData image = cloudinaryService.getRandomImage();
 
