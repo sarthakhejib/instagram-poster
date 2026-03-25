@@ -29,7 +29,6 @@ public class CloudinaryService {
             ApiResponse response = cloudinary.api().resources(
                     ObjectUtils.asMap(
                             "type", "upload",
-                            "prefix", "kimau_upload/",   // your folder
                             "max_results", 50
                     )
             );
@@ -42,9 +41,17 @@ public class CloudinaryService {
                 throw new RuntimeException("No images found in Cloudinary");
             }
 
+            List<Map> filtered = resources.stream()
+                    .filter(img -> img.get("public_id").toString().startsWith("kimau_upload/"))
+                    .toList();
+
+            if (filtered.isEmpty()) {
+                throw new RuntimeException("No images found in kimau_upload folder");
+            }
+
             // Pick random image
             int index = new Random().nextInt(resources.size());
-            Map image = resources.get(index);
+            Map image = filtered.get(index);
 
             String imageUrl = image.get("secure_url").toString();
             String publicId = image.get("public_id").toString();
