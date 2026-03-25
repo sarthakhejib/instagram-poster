@@ -1,5 +1,5 @@
 # Use Java 17
-FROM openjdk:17-jdk-slim
+FROM FROM eclipse-temurin:17-jdk
 
 # Install Maven
 RUN apt-get update && apt-get install -y maven
