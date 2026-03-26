@@ -1,9 +1,7 @@
 package com.instagram_poster.service;
 
 import com.cloudinary.Cloudinary;
-import com.cloudinary.Transformation;
 import com.cloudinary.api.ApiResponse;
-import com.cloudinary.transformation.Layer;
 import com.cloudinary.utils.ObjectUtils;
 import com.instagram_poster.dto.ImageData;
 import org.slf4j.Logger;
@@ -103,24 +101,5 @@ public class CloudinaryService {
         } catch (Exception e) {
             log.error("Failed to move image: {}", publicId, e);
         }
-    }
-
-    public String getWatermarkedImageUrl(String publicId) {
-
-        return cloudinary.url()
-                .secure(true)
-                .transformation(new Transformation()
-                        .overlay(new Layer()
-                                .publicId("logo/watermark_logo")
-                                .type("image")
-                        )
-                        .width(120)
-                        .gravity("south_east")
-                        .opacity(50)
-                        .x(15)
-                        .y(15)
-                        .flags("layer_apply")
-                )
-                .generate(publicId);
     }
 }

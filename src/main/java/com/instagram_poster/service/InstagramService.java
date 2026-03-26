@@ -38,16 +38,15 @@ public class InstagramService {
      */
     public void uploadPost(ImageData image,String caption) {
         try {
+            String rawUrl = image.getUrl();
             String publicId = image.getPublicId();
 
-            String watermarkedUrl = cloudinaryService.getWatermarkedImageUrl(publicId);
-
-            // ✅ 2. Transform for Instagram ratio
-            String imageUrl = transformToInstagramRatio(watermarkedUrl);
+            // Transform for Instagram ratio
+            String imageUrl = transformToInstagramRatio(rawUrl);
 
             log.info("Image URL: {}", imageUrl);
 
-            // ✅ 3. Create media object
+            // Create media object
             String uploadUrl = "https://graph.facebook.com/v19.0/" + instagramBusinessId + "/media";
 
             HttpHeaders headers = new HttpHeaders();
@@ -81,7 +80,7 @@ public class InstagramService {
             // ⏳ small delay
             Thread.sleep(3000);
 
-            // ✅ 4. Publish
+            // Publish
             String publishUrl = "https://graph.facebook.com/v19.0/"
                     + instagramBusinessId
                     + "/media_publish"
