@@ -1,7 +1,9 @@
 package com.instagram_poster.service;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
 import com.cloudinary.api.ApiResponse;
+import com.cloudinary.transformation.Layer;
 import com.cloudinary.utils.ObjectUtils;
 import com.instagram_poster.dto.ImageData;
 import org.slf4j.Logger;
@@ -35,12 +37,13 @@ public class CloudinaryService {
 
             List<Map> resources = (List<Map>) response.get("resources");
 
-            log.info("Resources: {}", response.get("resources"));
+            log.info("Resources: {}", resources);
 
             if (resources == null || resources.isEmpty()) {
                 throw new RuntimeException("No images found in Cloudinary");
             }
 
+            // ✅ Filter only kimau_upload folder
             List<Map> filtered = resources.stream()
                     .filter(img -> "kimau_upload".equals(img.get("asset_folder")))
                     .toList();
@@ -49,19 +52,23 @@ public class CloudinaryService {
                 throw new RuntimeException("No images found in kimau_upload folder");
             }
 
-            // Pick random image
+            // ✅ Pick random image
             int index = new Random().nextInt(filtered.size());
             Map image = filtered.get(index);
 
             String imageUrl = image.get("secure_url").toString();
             String publicId = image.get("public_id").toString();
+            String assetFolder = image.get("asset_folder").toString();
+
+            // ✅ IMPORTANT FIX → build full public_id with folder
+            String fullPublicId = assetFolder + "/" + publicId;
 
             // Extract product name
             String productName = publicId
                     .substring(publicId.lastIndexOf("/") + 1)
                     .replace("-", " ");
 
-            return new ImageData(imageUrl, productName, publicId);
+            return new ImageData(imageUrl, productName, fullPublicId);
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch images from Cloudinary", e);
@@ -73,19 +80,47 @@ public class CloudinaryService {
      */
     public void moveToPosted(String publicId) {
         try {
-            String newPublicId = publicId.replace("kimau_upload/", "kimau_posted/");
+            // If already moved, skip
+            if (publicId.startsWith("kimau_posted/")) {
+                log.warn("Already moved: {}", publicId);
+                return;
+            }
 
+            // Build new public ID with folder
+            String newPublicId = "kimau_posted/" + publicId;
+
+            // Rename with overwrite false (safe)
             cloudinary.uploader().rename(
                     publicId,
                     newPublicId,
-                    ObjectUtils.emptyMap()
+                    ObjectUtils.asMap(
+                            "overwrite", false
+                    )
             );
 
-          log.info("Moved to posted: ",  newPublicId);
+            log.info("Moved to posted: {} -> {}", publicId, newPublicId);
 
         } catch (Exception e) {
-           log.error("Failed to move image: ", publicId);
-            e.printStackTrace();
+            log.error("Failed to move image: {}", publicId, e);
         }
+    }
+
+    public String getWatermarkedImageUrl(String publicId) {
+
+        return cloudinary.url()
+                .secure(true)
+                .transformation(new Transformation()
+                        .overlay(new Layer()
+                                .publicId("logo/watermark_logo")
+                                .type("image")
+                        )
+                        .width(120)
+                        .gravity("south_east")
+                        .opacity(50)
+                        .x(15)
+                        .y(15)
+                        .flags("layer_apply")
+                )
+                .generate(publicId);
     }
 }
