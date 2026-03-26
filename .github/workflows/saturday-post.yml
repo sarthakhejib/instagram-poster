@@ -1,0 +1,35 @@
+name: Saturday Instagram Post Scheduler
+
+on:
+  schedule:
+    - cron: "45 11 * * *"  # 5:15 PM every day. Saturday 7:30 AM IST (2:00 AM UTC)
+  workflow_dispatch:  # manual trigger option
+
+jobs:
+  trigger-post:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Render Scheduler Endpoint (with retry)
+        run: |
+          URL="https://instagram-poster-qfq2.onrender.com/scheduler/post"
+
+          for i in 1 2 3; do
+            echo "Attempt $i: Calling $URL"
+
+            HTTP_STATUS=$(curl -s -o response.txt -w "%{http_code}" "$URL")
+
+            echo "Response code: $HTTP_STATUS"
+            cat response.txt
+
+            if [ "$HTTP_STATUS" -eq 200 ]; then
+              echo "Success: Job executed"
+              exit 0
+            fi
+
+            echo "Failed attempt $i, retrying in 20 seconds..."
+            sleep 20
+          done
+
+          echo "All retry attempts failed"
+          exit 1

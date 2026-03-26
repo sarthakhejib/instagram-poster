@@ -38,11 +38,12 @@ public class InstagramService {
      */
     public void uploadPost(ImageData image,String caption) {
         try {
-            String rawUrl = image.getUrl();
             String publicId = image.getPublicId();
 
+            String watermarkedUrl = cloudinaryService.getWatermarkedImageUrl(publicId);
+
             // ✅ 2. Transform for Instagram ratio
-            String imageUrl = transformToInstagramRatio(rawUrl);
+            String imageUrl = transformToInstagramRatio(watermarkedUrl);
 
             log.info("Image URL: {}", imageUrl);
 
