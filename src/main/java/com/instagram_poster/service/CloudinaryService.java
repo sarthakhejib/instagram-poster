@@ -78,21 +78,31 @@ public class CloudinaryService {
      */
     public void moveToPosted(String publicId) {
         try {
-            // If already moved, skip
+            // Already moved check
             if (publicId.startsWith("kimau_posted/")) {
                 log.warn("Already moved: {}", publicId);
                 return;
             }
 
-            // Build new public ID with folder
-            String newPublicId = "kimau_posted/" + publicId;
+            log.info("Trying to move publicId: {}", publicId);
 
-            // Rename with overwrite false (safe)
+            // Extract only file name (remove folder path)
+            String fileName = publicId.contains("/")
+                    ? publicId.substring(publicId.lastIndexOf("/") + 1)
+                    : publicId;
+
+            // Build new public ID
+            String newPublicId = "kimau_posted/" + fileName;
+
+            log.info("Renaming from {} to {}", publicId, newPublicId);
+
+            // Rename with correct options
             cloudinary.uploader().rename(
-                    publicId,
+                    publicId,              // MUST be exact existing ID
                     newPublicId,
                     ObjectUtils.asMap(
-                            "overwrite", false
+                            "resource_type", "image",
+                            "overwrite", true
                     )
             );
 
