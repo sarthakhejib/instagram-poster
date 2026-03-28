@@ -1,0 +1,19 @@
+name: Wake Render Service (Wed & Fri - 6:15 PM IST)
+
+on:
+  schedule:
+    - cron: "45 12 * * 3,5"  # Wed & Fri 6:15 PM IST
+  workflow_dispatch:
+
+jobs:
+  wake-service:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Wake Render Service
+        run: |
+          URL="https://instagram-poster-qfq2.onrender.com/health"
+
+          echo "Waking up service..."
+          curl -s "$URL"
+          echo "Wake-up call sent"
