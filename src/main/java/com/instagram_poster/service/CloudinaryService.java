@@ -35,7 +35,7 @@ public class CloudinaryService {
 
             List<Map> resources = (List<Map>) response.get("resources");
 
-            log.info("Resources: {}", resources);
+           // log.info("Resources: {}", resources);
 
             if (resources == null || resources.isEmpty()) {
                 throw new RuntimeException("No images found in Cloudinary");
