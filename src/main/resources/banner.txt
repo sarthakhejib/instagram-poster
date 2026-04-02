@@ -1,0 +1,32 @@
+${AnsiColor.BRIGHT_MAGENTA}
+ _  ___ __  __    _    _   _
+| |/ (_)  \/  |  / \  | | | |
+| ' /| | |\/| | / _ \ | | | |
+| . \| | |  | |/ ___ \| |_| |
+|_|\_\_|_|  |_/_/   \_\\___/
+
+${AnsiColor.BRIGHT_GREEN}
+_____ _   _  ____ ___ _   _ _____
+| ____| \ | |/ ___|_ _| \ | | ____|
+|  _| |  \| | |  _ | ||  \| |  _|
+| |___| |\  | |_| || || |\  | |___
+|_____|_| \_|\____|___|_| \_|_____|
+
+${AnsiColor.DEFAULT}
+
+
+${AnsiColor.BRIGHT_MAGENTA}
+🚀 Kimau Poster Engine
+
+${AnsiColor.BRIGHT_CYAN}
+Auto Instagram Posting System
+
+${AnsiColor.BRIGHT_GREEN}
+AI Captions | Cloudinary | Scheduler Ready
+
+${AnsiColor.YELLOW}
+----------------------------------------
+Ready to Post 🚀
+----------------------------------------
+
+${AnsiColor.DEFAULT}

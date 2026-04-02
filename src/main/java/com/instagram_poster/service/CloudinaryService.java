@@ -41,7 +41,7 @@ public class CloudinaryService {
                 throw new RuntimeException("No images found in Cloudinary");
             }
 
-            // ✅ Filter only kimau_upload folder
+            // Filter only kimau_upload folder
             List<Map> filtered = resources.stream()
                     .filter(img -> "kimau_upload".equals(img.get("asset_folder")))
                     .toList();
@@ -50,7 +50,7 @@ public class CloudinaryService {
                 throw new RuntimeException("No images found in kimau_upload folder");
             }
 
-            // ✅ Pick random image
+            // Pick random image
             int index = new Random().nextInt(filtered.size());
             Map image = filtered.get(index);
 
@@ -58,7 +58,7 @@ public class CloudinaryService {
             String publicId = image.get("public_id").toString();
             String assetFolder = image.get("asset_folder").toString();
 
-            // ✅ IMPORTANT FIX → build full public_id with folder
+            // IMPORTANT FIX → build full public_id with folder
             String fullPublicId = assetFolder + "/" + publicId;
 
             // Extract product name
@@ -78,27 +78,61 @@ public class CloudinaryService {
      */
     public void moveToPosted(String publicId) {
         try {
-            // Already moved check
-            if (publicId.startsWith("kimau_posted/")) {
-                log.warn("Already moved: {}", publicId);
-                return;
-            }
+            log.info("Input publicId: {}", publicId);
 
-            log.info("Trying to move publicId: {}", publicId);
-
-            // Extract only file name (remove folder path)
+            // Step 1: Extract filename (safe fallback)
             String fileName = publicId.contains("/")
                     ? publicId.substring(publicId.lastIndexOf("/") + 1)
                     : publicId;
 
-            // Build new public ID
-            String newPublicId = "kimau_posted/" + fileName;
+            log.info("Extracted fileName: {}", fileName);
 
-            log.info("Renaming from {} to {}", publicId, newPublicId);
+            // Step 2: Try to fetch resource from BOTH possibilities
+            Map resource = null;
 
-            // Rename with correct options
+            try {
+                // Try with folder
+                resource = cloudinary.api().resource(
+                        "kimau_upload/" + fileName,
+                        ObjectUtils.emptyMap()
+                );
+                log.info("Found with folder: kimau_upload/{}", fileName);
+
+            } catch (Exception e1) {
+
+                try {
+                    // Try without folder
+                    resource = cloudinary.api().resource(
+                            fileName,
+                            ObjectUtils.emptyMap()
+                    );
+                    log.info("Found without folder: {}", fileName);
+
+                } catch (Exception e2) {
+                    log.error("Resource not found in Cloudinary: {}", fileName);
+                    return;
+                }
+            }
+
+            // Step 3: Get ACTUAL public_id
+            String actualPublicId = resource.get("public_id").toString();
+
+            log.info("Actual publicId from Cloudinary: {}", actualPublicId);
+
+            // Step 4: Skip if already moved
+            if (actualPublicId.startsWith("kimau_posted/")) {
+                log.warn("Already moved: {}", actualPublicId);
+                return;
+            }
+
+            // Step 5: Rename
+            String newPublicId = "kimau_posted/" +
+                    actualPublicId.substring(actualPublicId.lastIndexOf("/") + 1);
+
+            log.info("Renaming from {} → {}", actualPublicId, newPublicId);
+
             cloudinary.uploader().rename(
-                    publicId,              // MUST be exact existing ID
+                    actualPublicId,
                     newPublicId,
                     ObjectUtils.asMap(
                             "resource_type", "image",
@@ -106,10 +140,10 @@ public class CloudinaryService {
                     )
             );
 
-            log.info("Moved to posted: {} -> {}", publicId, newPublicId);
+            log.info("SUCCESS: Moved to posted");
 
         } catch (Exception e) {
-            log.error("Failed to move image: {}", publicId, e);
+            log.error("FINAL ERROR while moving image: {}", publicId, e);
         }
     }
 }
